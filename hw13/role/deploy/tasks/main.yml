@@ -1,0 +1,13 @@
+---
+# tasks file for deplo
+- name: Clone App
+  git:
+    repo: https://github.com/Enot41/raddit.git
+    dest: /tmp/raddit
+    clone: yes
+  notify:
+    - restarted puma
+- name: Install bundler
+  bundler:
+    state: present
+    chdir: /tmp/raddit

@@ -1,0 +1,7 @@
+---
+- name: restarted puma
+  service:
+    name: puma
+    state: restarted
+
+# handlers file for deploy

@@ -1,0 +1,5 @@
+- name: ConfigureApp
+  hosts: all
+  become: true
+  roles:
+    - app

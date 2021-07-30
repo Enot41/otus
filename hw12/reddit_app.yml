@@ -1,0 +1,90 @@
+# Setup and configure ruby things for reddit app
+- name: "Reddit App: Install and Configure DB"
+  hosts: all
+  become: yes
+  vars:
+    mongo_bind_ip: 0.0.0.0
+  tags: db-tag   
+  tasks:
+  - name: Install mongodb package
+    apt:  
+      name: mongodb 
+      state: present
+    notify:
+      - restart mongodb     
+  - name: Change magodb config file
+    template:
+      src: templates/mongodb.conf.j2
+      dest: /etc/mongodb.conf
+      mode: 0644
+    notify:
+      - restart mongodb
+  handlers:
+   - name: restart mongodb
+     service:
+       name: mongodb
+       state: restarted
+
+- name: "Reddit App: Install and Configure APP"
+  hosts: all
+  become: yes
+  vars:
+    db_host: 192.168.137.176
+  tags: app-tag
+  tasks:
+  - name: Install ruby and rubygems and required packages
+    apt: 
+      pkg:
+      - ruby-full
+      - ruby-dev
+      - build-essential
+      - net-tools  
+      update_cache: yes
+      state: present
+  - name: Install Ruby bundler
+    gem:
+      name: bundler
+      state: present
+  - name: Copy Service Puma
+    copy:
+      src: files/puma.service
+      dest: /etc/systemd/system/puma.service
+    notify:
+      - reload puma
+  - name: Add config for DB connection
+    template:
+      src: templates/db_config.j2
+      dest: /tmp/db_config
+  - name: Enable Puma
+    systemd:
+      name: puma
+      enabled: yes
+  handlers:
+    - name:  reload puma
+      service:
+        name: puma
+        state: reloaded
+
+- name: "Reddit App Deploy"
+  hosts: all
+  become: yes
+  tags: deploy-tag
+  tasks:
+  - name: Clone App 
+    git:
+      repo: https://github.com/Enot41/raddit.git
+      dest: /tmp/raddit
+      clone: yes
+    notify:
+      - restarted puma
+  - name: Install bundler
+    bundler: 
+      state: present
+      chdir: /tmp/raddit
+      
+  handlers:
+    - name: restarted puma
+      service:
+        name: puma
+        state: restarted
+

@@ -1,0 +1,5 @@
+- name: Configure MongoDB
+  hosts: dbserver
+  become: true
+  roles:
+    - db

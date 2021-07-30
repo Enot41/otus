@@ -1,0 +1,16 @@
+---
+- name: Install mongodb package
+  apt:
+    name: mongodb
+    state: present
+  notify:
+    - restart mongodb
+
+- name: Change magodb config file
+  template:
+    src: mongodb.conf.j2
+    dest: /etc/mongodb.conf
+    mode: 0644
+  notify:
+    - restart mongodb
+

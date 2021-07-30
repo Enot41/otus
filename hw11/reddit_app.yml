@@ -1,0 +1,81 @@
+# Setup and configure ruby things for reddit app
+- name: "Reddit App: Configure app environment"
+  hosts: all
+  gather_facts: no
+  become: yes
+  vars:
+    mongo_bind_ip: 0.0.0.0
+    db_host: 192.168.137.176
+  tasks:
+  - name: Install ruby and rubygems and required packages
+    apt: 
+      pkg:
+      - ruby-full
+      - ruby-dev
+      - build-essential
+      - net-tools  
+      update_cache: yes
+      state: present
+  - name: Install Ruby bundler
+    gem:
+      name: bundler
+      state: present
+  - name: Install mongodb package
+    apt:
+      name: mongodb
+      state: present
+    notify:
+      - restart mongodb     
+  - name: Change magodb config file
+    template:
+      src: ./mongodb.conf.j2
+      dest: /etc/mongodb.conf
+      mode: 0644
+    notify:
+      - restart mongodb
+    tags: db-tag    
+
+  - name: Clone App        
+    git:
+      repo: https://github.com/Enot41/raddit.git
+      dest: /tmp/raddit
+      clone: yes
+    notify:
+      - restart mongodb
+      - Start APP  
+  - name: Install gems
+    bundler: 
+      state: present
+      chdir: /tmp/raddit
+    tags: app-tag
+
+  - name: Copy Service Puma
+    become: true
+    copy:
+      src: files/puma.service
+      dest: /etc/systemd/system/puma.service
+    tags: app-tag
+    notify:
+      - Start Puma
+    tags: app-tag
+  - name: Add config for DB connection
+    template:
+      src: templates/db_config.j2
+      dest: /tmp/db_config
+    tags: app-tag
+
+  - name: Enable Puma
+    become: true
+    systemd:
+      name: puma
+      enabled: yes
+    tags: app-tag
+  handlers:
+    - name:  Start Puma
+      service:
+        name: puma
+        state: restarted   
+    - name: restart mongodb
+      service:
+        name: mongodb
+        state: restarted

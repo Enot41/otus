@@ -1,0 +1,47 @@
+# Setup and configure ruby things for reddit app
+- name: "Reddit App: Configure app environment"
+  hosts: all
+  gather_facts: no
+  become: yes
+
+  tasks:
+  - name: Install ruby and rubygems and required packages
+    apt: 
+      pkg:
+      - ruby-full
+      - ruby-dev
+      - build-essential
+      - net-tools  
+      update_cache: yes
+      state: present
+  - name: Install Ruby bundler
+    gem:
+      name: bundler
+      state: present
+  - name: Install mongodb package
+    apt:
+      name: mongodb
+      state: present
+    notify:
+      - restart mongodb      
+  - name: Clone App        
+    git:
+      repo: https://github.com/Enot41/raddit.git
+      dest: /tmp/raddit
+      clone: yes
+    notify:
+      - restart mongodb
+      - Start APP  
+  - name: Install gems
+    bundler: 
+      state: present
+      chdir: /tmp/raddit
+  handlers:
+    - name:  Start APP
+      shell:
+        cmd: puma
+        chdir: /tmp/raddit    
+    - name: restart mongodb
+      service:
+        name: mongodb
+        state: restarted

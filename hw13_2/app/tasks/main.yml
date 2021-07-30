@@ -1,0 +1,30 @@
+---
+- name: Install ruby and rubygems and required packages
+  apt:
+    pkg:
+    - ruby-full
+    - ruby-dev
+    - ruby-bundler  
+    - build-essential
+    - net-tools
+    - git
+    update_cache: yes
+    state: present
+- name: Install Ruby bundler
+  gem:
+    name: bundler
+    state: present
+- name: Copy Service Puma
+  copy:
+    src: puma.service
+    dest: /etc/systemd/system/puma.service
+  notify:
+    - reload puma
+- name: Add config for DB connection
+  template:
+    src: db_config.j2
+    dest: /tmp/db_config
+- name: Enable Puma
+  systemd:
+    name: puma
+    enabled: yes

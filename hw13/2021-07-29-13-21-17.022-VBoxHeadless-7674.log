@@ -1,0 +1,12 @@
+Log created: 2021-07-29T13:21:17.223374000Z
+Process ID:  7674 (0x1dfa)
+Parent PID:  1 (0x1)
+Executable:  /usr/lib/virtualbox/VBoxHeadless
+Arg[0]: /usr/lib/virtualbox/VBoxHeadless
+Arg[1]: --comment
+Arg[2]: hw13_dbserver_1627544798070_57850
+Arg[3]: --startvm
+Arg[4]: f622f63b-89db-477a-85e9-82ba584f9623
+Arg[5]: --vrde
+Arg[6]: config
+AddRef: illegal refcnt=3221225469 state=2
