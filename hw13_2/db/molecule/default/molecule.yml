@@ -1,18 +1,20 @@
 ---
-dependency:
-  name: galaxy
+#dependency:
+        #  name: galaxy
 driver:
   name: vagrant
-  provider:
+  provider: 
     name: virtualbox
+    #lint:
+    #  name: yamlint
 platforms:
   - name: instance
     box: ubuntu/focal64
-    memory: 512
-    cpus: 2
+    memory: 1024
+    cpus: 1
 provisioner:
   name: ansible
-  lint:
-    name: ansible-lint
-  #verifier:
-  #  name: ansible
+lint: |
+  name: ansible-lint
+verifier:
+  name: testinfra
