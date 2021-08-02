@@ -1,12 +1,9 @@
----
-#dependency:
-        #  name: galaxy
 driver:
   name: vagrant
-  provider: 
-    name: virtualbox
-    #lint:
-    #  name: yamlint
+provider:
+  name: virtualbox
+  #lint:
+  # name: yamlint
 platforms:
   - name: instance
     box: ubuntu/focal64
